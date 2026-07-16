@@ -1,20 +1,17 @@
 module RegFile_32x64(
-    clk,
-    rstn,
-    reg_addr1,
-    reg_addr2,
+    clk, rstn,
+    reg_addr1, reg_addr2,
     wr_en,
-    rd_en1,
-    rd_en2,
+    rd_en1, rd_en2,
     wdata,
-    rdata1,
-    rdata2
+    rdata1, rdata2
 );
     
     //Inputs
     input clk, rstn;
     input [4:0] reg_addr1, reg_addr2;
-    input wr_en, rd_en1, rd_en2;
+    input wr_en;
+    input rd_en1, rd_en2;
     input [63:0] wdata;
     
     //Outputs
