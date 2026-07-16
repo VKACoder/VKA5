@@ -15,7 +15,13 @@ module RegFile_TB;
     wire [63:0] rdata1, rdata2;
     
     //DUT Instantiation
-    RegFile_32x64 DUT(clk, rstn, reg_addr1, reg_addr2, wr_en, rd_en1, rd_en2, wdata, rdata1, rdata2);
+    RegFile_32x64 DUT(
+        .clk(clk), .rstn(rstn),
+        .reg_addr1(reg_addr1), .reg_addr2(reg_addr2),
+        .wr_en(wr_en),
+        .rd_en1(rd_en1), .rd_en2(rd_en2),
+        .wdata(wdata),
+        .rdata1(rdata1), .rdata2(rdata2) );
     
     //Clk generation
     always #5 clk = ~clk;
