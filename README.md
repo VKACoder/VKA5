@@ -11,7 +11,7 @@ This repository is currently under active development. Components will be added 
 
 - RV64 5-stage in-order pipeline
 - Dual-core architecture
-- RV64IM instruction set support
+- RV64IMAC instruction set support
 - Private L1 instruction and data caches per core
 - Shared L2 cache
 - AXI-based system interconnect
