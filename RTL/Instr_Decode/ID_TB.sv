@@ -11,6 +11,7 @@ module ID_TB();
     
     //Inout to/from ID
     wire [63:0] current_pc;
+    wire is_valid_compressed_instr, is_valid_instr;
     
     //Outputs from ID
 
@@ -23,7 +24,8 @@ module ID_TB();
     ID DUT(
         .clk(clk), .rstn(rstn),
         .instr_fetched(instr_fetched),
-        .current_pc(current_pc) );
+        .current_pc(current_pc),
+        .is_valid_compressed_instr(is_valid_compressed_instr), .is_valid_instr(is_valid_instr) );
     
     always #5 clk = ~clk;
     
@@ -83,6 +85,18 @@ module ID_TB();
         //end:
         @ (posedge clk) pc = 64'h 30;
         instr_fetched = 32'h 00700713; //addi    x14, x0, 7           # x14 = 7
+        
+        @ (posedge clk) pc = 64'h 32;
+        instr_fetched = 32'h 0001;     //c.nop                        # no operation
+        
+        @ (posedge clk) pc = 64'h 34;
+        instr_fetched = 32'h 4785;     //c.li    x15, 1               # x15 = 1
+        
+        @ (posedge clk) pc = 64'h 36;
+        instr_fetched = 32'h 0789;     //c.addi  x15, 2               # x15 = x15 + 2 = 3
+        
+        @ (posedge clk) pc = 64'h 38;
+        instr_fetched = 32'h 97BA;     //c.add   x15, x14             # x15 = x15 + x14 = 10
         
         repeat (5) @(posedge clk);
         $finish();
