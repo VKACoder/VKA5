@@ -126,6 +126,8 @@ module ID(
                                        is_CIW_type || is_CL_type || is_CS_type ||
                                         is_CA_type || is_CB_type || is_CJ_type) **/;
                                         
+    assign is_valid_umcompressed_operation = op == '0;
+                                        
     assign is_valid_uncompressed_instr = (is_R_type || is_I_type || is_S_type || is_B_type || is_U_type || is_J_type) && is_valid_uncompressed_operation;
     
     assign is_valid_instr = is_valid_compressed_instr || is_valid_uncompressed_instr;
