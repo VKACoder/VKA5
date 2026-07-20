@@ -16,13 +16,34 @@ module RegFile_32x64(
     input [63:0] wdata;
     
     //Outputs
-    output [63:0] rdata1, rdata2;
+    output reg [63:0] rdata1, rdata2;
     
     //Register file array declaration
     reg [63:0] reg_array [31:0];
     
-    assign rdata1 = (rd_en1 == 1'b 1) ? reg_array[reg_addr1] : 64'd 0;
-    assign rdata2 = (rd_en2 == 1'b 1) ? reg_array[reg_addr2] : 64'd 0;
+    always_comb begin : read_logic
+        if (rstn == 1'b 0) begin
+            rdata1 = 64'd 0;
+            rdata2 = 64'd 0;
+        end
+        if (rd_en1 == 1'b 1) begin
+            if (reg_addr1 != 5'd 0) begin
+                rdata1 = reg_array[reg_addr1];
+            end
+            else begin
+                rdata1 = 64'd 0;
+            end
+        end
+        
+        if (rd_en2 == 1'b 1) begin
+            if (reg_addr2 != 5'd 0) begin
+                rdata2 = reg_array[reg_addr2];
+            end
+            else begin
+                rdata2 = 64'd 0;
+            end
+        end
+    end
     
     always_ff @ (posedge clk) begin : reset_write_logic
         if (rstn == 1'b 0) begin
