@@ -16,9 +16,9 @@ module IF_TB();
     //DUT Instantiation
     IF DUT(
         .clk(clk), .rstn(rstn),
-        .is_ctrl_flow_o(is_ctrl_flow_i), .is_compressed_instr_o(is_compressed_instr_i),
-        .target_addr_o(target_addr_i),
-        .current_pc_i(current_pc_o) );
+        .is_ctrl_flow_i(is_ctrl_flow_o), .is_compressed_instr_i(is_compressed_instr_o),
+        .target_addr_i(target_addr_o),
+        .current_pc_o(current_pc_i) );
     
     //Clk generation
     always #5 clk = ~clk;
