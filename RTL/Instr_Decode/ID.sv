@@ -3,44 +3,14 @@ module ID(
     instr_fetched,
     current_pc,
     is_compressed_instr, /* CHECK */
-    is_valid_instr,
+    is_valid_instr, /* CHECK */
     rd_en1, rd_en2, imm_valid,
     reg_addr1, reg_addr2,
-    imm_value
+    imm_value,
+    op
 );
 
-    typedef struct packed {
-        logic is_add, is_sub;
-        logic is_sll, is_srl, is_sra;
-        logic is_slt, is_sltu;
-        logic is_xor, is_or, is_and;
-        logic is_addw, is_subw;
-        logic is_sllw, is_srlw, is_sraw;
-        logic is_addi;
-        logic is_slti, is_sltiu;
-        logic is_xori, is_ori, is_andi;
-        logic is_slli, is_srli, is_srai;
-        logic is_addiw;
-        logic is_slliw, is_srliw, is_sraiw;
-        logic is_lb, is_lbu;
-        logic is_lh, is_lhu;
-        logic is_lw, is_lwu;
-        logic is_ld;
-        logic is_sb, is_sh;
-        logic is_sw, is_sd;
-        logic is_beq, is_bne;
-        logic is_blt, is_bge;
-        logic is_bltu, is_bgeu;
-        logic is_jal;
-        logic is_jalr;
-        logic is_lui;
-        logic is_auipc;
-        logic is_fence;
-        logic is_fence_tso;
-        logic is_pause;
-        logic is_ecall;
-        logic is_ebreak;
-    } operation;
+    import RV64_pkg::*;
 
     //Inputs
     input clk, rstn;
@@ -50,13 +20,13 @@ module ID(
     inout [63:0] current_pc;
     
     //Outputs
-    output is_compressed_instr /* CHECK */, is_valid_instr;
+    output is_compressed_instr, is_valid_instr; /* CHECK */
     output rd_en1, rd_en2, imm_valid;
     output [4:0] reg_addr1, reg_addr2;
     output reg [63:0] imm_value;
+    output operation op;
     
     //Reg declarations
-    reg is_valid_uncompressed_operation;
     
     //Wire declarations
     wire is_valid_compressed_instr, is_valid_uncompressed_instr; /* CHECK */
@@ -66,8 +36,7 @@ module ID(
     wire [2:0] funct3;
     wire [6:0] funct7;
     wire [16:0] uncompressed_dec_bits;
-    
-    operation op;
+    wire is_valid_uncompressed_operation; /* CHECK */
          
     //** ID LOGIC **//
     //Uncompressed instructions decoding
@@ -126,7 +95,7 @@ module ID(
                                        is_CIW_type || is_CL_type || is_CS_type ||
                                         is_CA_type || is_CB_type || is_CJ_type) **/;
                                         
-    assign is_valid_umcompressed_operation = op == '0;
+    assign is_valid_uncompressed_operation = ~(op == '0);
                                         
     assign is_valid_uncompressed_instr = (is_R_type || is_I_type || is_S_type || is_B_type || is_U_type || is_J_type) && is_valid_uncompressed_operation;
     
@@ -169,21 +138,62 @@ module ID(
     
     //Operation decoding
     //R-type
-    assign op.is_add = uncompressed_dec_bits == {7'd 0, 3'd 0, 7'b 0110011};
-    assign op.is_sub = uncompressed_dec_bits == {7'h 20, 3'd 0, 7'b 0110011};
-    assign op.is_sll = uncompressed_dec_bits == {7'd 0, 3'd 1, 7'b 0110011};
-    assign op.is_slt = uncompressed_dec_bits == {7'd 0, 3'd 2, 7'b 0110011};
-    assign op.is_sltu = uncompressed_dec_bits == {7'd 0, 3'd 3, 7'b 0110011};
-    assign op.is_xor = uncompressed_dec_bits == {7'd 0, 3'd 4, 7'b 0110011};
-    assign op.is_srl = uncompressed_dec_bits == {7'd 0, 3'd 5, 7'b 0110011};
-    assign op.is_sra = uncompressed_dec_bits == {7'h 20, 3'd 5, 7'b 0110011};
-    assign op.is_or = uncompressed_dec_bits == {7'd 0, 3'd 6, 7'b 0110011};
-    assign op.is_and = uncompressed_dec_bits == {7'd 0, 3'd 7, 7'b 0110011};
+    assign op.is_add = uncompressed_dec_bits ==? {7'd 0, 3'd 0, 7'b 0110011};
+    assign op.is_sub = uncompressed_dec_bits ==? {7'h 20, 3'd 0, 7'b 0110011};
+    assign op.is_sll = uncompressed_dec_bits ==? {7'd 0, 3'd 1, 7'b 0110011};
+    assign op.is_slt = uncompressed_dec_bits ==? {7'd 0, 3'd 2, 7'b 0110011};
+    assign op.is_sltu = uncompressed_dec_bits ==? {7'd 0, 3'd 3, 7'b 0110011};
+    assign op.is_xor = uncompressed_dec_bits ==? {7'd 0, 3'd 4, 7'b 0110011};
+    assign op.is_srl = uncompressed_dec_bits ==? {7'd 0, 3'd 5, 7'b 0110011};
+    assign op.is_sra = uncompressed_dec_bits ==? {7'h 20, 3'd 5, 7'b 0110011};
+    assign op.is_or = uncompressed_dec_bits ==? {7'd 0, 3'd 6, 7'b 0110011};
+    assign op.is_and = uncompressed_dec_bits ==? {7'd 0, 3'd 7, 7'b 0110011};
     
-    assign op.is_addw = uncompressed_dec_bits == {7'd 0, 3'd 0, 7'b 0111011};
-    assign op.is_subw = uncompressed_dec_bits == {7'h 20, 3'd 0, 7'b 0111011};
-    assign op.is_sllw = uncompressed_dec_bits == {7'd 0, 3'd 1, 7'b 0111011};
-    assign op.is_srlw = uncompressed_dec_bits == {7'd 0, 3'd 5, 7'b 0111011};
-    assign op.is_sraw = uncompressed_dec_bits == {7'h 20, 3'd 5, 7'b 0111011};
-
+    assign op.is_addw = uncompressed_dec_bits ==? {7'd 0, 3'd 0, 7'b 0111011};
+    assign op.is_subw = uncompressed_dec_bits ==? {7'h 20, 3'd 0, 7'b 0111011};
+    assign op.is_sllw = uncompressed_dec_bits ==? {7'd 0, 3'd 1, 7'b 0111011};
+    assign op.is_srlw = uncompressed_dec_bits ==? {7'd 0, 3'd 5, 7'b 0111011};
+    assign op.is_sraw = uncompressed_dec_bits ==? {7'h 20, 3'd 5, 7'b 0111011};
+    
+    assign op.is_jalr = uncompressed_dec_bits ==? {7'b xxxxxxx, 3'd 0, 7'b 1100111};
+    assign op.is_lb = uncompressed_dec_bits ==? {7'b xxxxxxx, 3'd 0, 7'b 0000011};
+    assign op.is_lh = uncompressed_dec_bits ==? {7'b xxxxxxx, 3'd 1, 7'b 0000011};
+    assign op.is_lw = uncompressed_dec_bits ==? {7'b xxxxxxx, 3'd 2, 7'b 0000011};
+    assign op.is_lbu = uncompressed_dec_bits ==? {7'b xxxxxxx, 3'd 4, 7'b 0000011};
+    assign op.is_lhu = uncompressed_dec_bits ==? {7'b xxxxxxx, 3'd 5, 7'b 0000011};
+    assign op.is_addi = uncompressed_dec_bits ==? {7'b xxxxxxx, 3'd 0, 7'b 0010011};
+    assign op.is_slti = uncompressed_dec_bits ==? {7'b xxxxxxx, 3'd 2, 7'b 0010011};
+    assign op.is_sltiu = uncompressed_dec_bits ==? {7'b xxxxxxx, 3'd 3, 7'b 0010011};
+    assign op.is_xori = uncompressed_dec_bits ==? {7'b xxxxxxx, 3'd 4, 7'b 0010011};
+    assign op.is_ori = uncompressed_dec_bits ==? {7'b xxxxxxx, 3'd 6, 7'b 0010011};
+    assign op.is_andi = uncompressed_dec_bits ==? {7'b xxxxxxx, 3'd 7, 7'b 0010011};
+    
+    assign op.is_lwu = uncompressed_dec_bits ==? {7'b xxxxxxx, 3'd 6, 7'b 0000011};
+    assign op.is_ld = uncompressed_dec_bits ==? {7'b xxxxxxx, 3'd 3, 7'b 0000011};
+    assign op.is_slli = uncompressed_dec_bits ==? {7'd 0, 3'd 1, 7'b 0010011};
+    assign op.is_srli = uncompressed_dec_bits ==? {7'd 0, 3'd 5, 7'b 0010011};
+    assign op.is_srai = uncompressed_dec_bits ==? {7'h 20, 3'd 5, 7'b 0010011};
+    assign op.is_addiw = uncompressed_dec_bits ==? {7'b xxxxxxx, 3'd 0, 7'b 0011011};
+    assign op.is_slliw = uncompressed_dec_bits ==? {7'd 0, 3'd 1, 7'b 0011011};
+    assign op.is_srliw = uncompressed_dec_bits ==? {7'd 0, 3'd 5, 7'b 0011011};
+    assign op.is_sraiw = uncompressed_dec_bits ==? {7'h 20, 3'd 5, 7'b 0011011};
+    
+    assign op.is_sb = uncompressed_dec_bits ==? {7'b xxxxxxx, 3'd 0, 7'b 0100011};
+    assign op.is_sh = uncompressed_dec_bits ==? {7'b xxxxxxx, 3'd 1, 7'b 0100011};
+    assign op.is_sw = uncompressed_dec_bits ==? {7'b xxxxxxx, 3'd 2, 7'b 0100011};
+    
+    assign op.is_sd = uncompressed_dec_bits ==? {7'b xxxxxxx, 3'd 3, 7'b 0100011};
+    
+    assign op.is_beq = uncompressed_dec_bits ==? {7'b xxxxxxx, 3'd 0, 7'b 1100011};
+    assign op.is_bne = uncompressed_dec_bits ==? {7'b xxxxxxx, 3'd 1, 7'b 1100011};
+    assign op.is_blt = uncompressed_dec_bits ==? {7'b xxxxxxx, 3'd 4, 7'b 1100011};
+    assign op.is_bge = uncompressed_dec_bits ==? {7'b xxxxxxx, 3'd 5, 7'b 1100011};
+    assign op.is_bltu = uncompressed_dec_bits ==? {7'b xxxxxxx, 3'd 6, 7'b 1100011};
+    assign op.is_bgeu = uncompressed_dec_bits ==? {7'b xxxxxxx, 3'd 7, 7'b 1100011};
+    
+    assign op.is_lui = uncompressed_dec_bits ==? {10'b xxxxxxxxxx, 7'b 0110111};
+    assign op.is_auipc = uncompressed_dec_bits ==? {10'b xxxxxxxxxx, 7'b 0010111};
+    
+    assign op.is_jal = uncompressed_dec_bits ==? {10'b xxxxxxxxxx, 7'b 1101111};
+    
 endmodule
