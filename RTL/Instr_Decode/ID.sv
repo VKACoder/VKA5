@@ -53,7 +53,7 @@ module ID(
     
     assign is_B_type = (instr_fetched[6:0] == 7'b 1100011);
     
-    assign is_U_type = ((instr_fetched[6:0] == 7'b 0110111) || (instr_fetched[6:0] == 0010111));
+    assign is_U_type = ((instr_fetched[6:0] == 7'b 0110111) || (instr_fetched[6:0] == 7'b 0010111));
                        
     assign is_J_type = (instr_fetched[6:0] == 7'b 1101111);
                        
