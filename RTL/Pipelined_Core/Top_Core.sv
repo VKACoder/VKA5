@@ -3,12 +3,14 @@ import RV64_pkg::*;
 module Top_Core(
     clk, rstn,
     instr_fetched,
+    instr_fetched_valid,
     pc
     );
     
     //Inputs
     input clk, rstn;
     input [31:0] instr_fetched;
+    input instr_fetched_valid;
     
     //Outputs
     output [63:0] pc;
@@ -58,5 +60,17 @@ module Top_Core(
         .reg_addr1(Reg_addr1), .reg_addr2(Reg_addr2),
         .wr_en(1'b 0), .rd_en1(Rd_en1), .rd_en2(Rd_en2),
         .wdata(64'd 0), .rdata1(Rdata1), .rdata2(Rdata2) );    
+    
+    //Pipeline Register Updation
+    always_ff @ (posedge clk) begin : IF_ID_Registers
+        if (rstn == 1'b 0) begin
+            IF_current_pc <= 64'd 0;
+            IF_instr <= 32'd 0;
+        end
+        else begin
+            IF_current_pc <= pc;
+            IF_instr <= instr_fetched_valid == 1'b 1 ? instr_fetched : 32'h 00000013;
+        end
+    end
     
 endmodule
