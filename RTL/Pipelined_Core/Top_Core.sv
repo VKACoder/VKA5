@@ -1,16 +1,17 @@
 import RV64_pkg::*;
 
-module Top_Core(
+module Top_Core
+(
     clk, rstn,
-    instr_fetched,
-    instr_fetched_valid,
+    instr_fetched_i,
+    instr_fetched_valid_i,
     pc
-    );
+);
     
     //Inputs
     input clk, rstn;
-    input [31:0] instr_fetched;
-    input instr_fetched_valid;
+    input [31:0] instr_fetched_i;
+    input instr_fetched_valid_i;
     
     //Outputs
     output [63:0] pc;
@@ -25,7 +26,7 @@ module Top_Core(
     wire [63:0] Rdata1, Rdata2;
     wire [63:0] Imm_value;
     wire [63:0] curr_pc_from_ID;
-    operarion op;
+    operation op;
     
     //Pipeline registers
     //IF/ID Stage
@@ -38,6 +39,7 @@ module Top_Core(
     //IF STage
     IF IF_Stage(
         .clk(clk), .rstn(rstn),
+        .stall_IF_i(~instr_fetched_valid_i),
         .is_ctrl_flow_i(1'b 0), .is_compressed_instr_i(is_compressed_instr),
         .target_addr_i(64'd 0),
         .current_pc_o(pc) );
@@ -69,7 +71,7 @@ module Top_Core(
         end
         else begin
             IF_current_pc <= pc;
-            IF_instr <= instr_fetched_valid == 1'b 1 ? instr_fetched : 32'h 00000013;
+            IF_instr <= instr_fetched_valid_i == 1'b 1 ? instr_fetched_i : 32'h 00000013;
         end
     end
     
