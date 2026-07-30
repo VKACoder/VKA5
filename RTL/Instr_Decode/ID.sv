@@ -1,4 +1,5 @@
-module ID(
+module ID
+(
     clk, rstn,
     instr_fetched_i,
     current_pc_i,
