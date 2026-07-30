@@ -7,6 +7,7 @@ module IF_TB();
 
     //Input to IF
     reg clk, rstn;
+    reg stall_IF_o;
     reg is_ctrl_flow_o, is_compressed_instr_o;
     reg [63:0] target_addr_o;
     
@@ -16,6 +17,7 @@ module IF_TB();
     //DUT Instantiation
     IF DUT(
         .clk(clk), .rstn(rstn),
+        .stall_IF_i(stall_IF_o),
         .is_ctrl_flow_i(is_ctrl_flow_o), .is_compressed_instr_i(is_compressed_instr_o),
         .target_addr_i(target_addr_o),
         .current_pc_o(current_pc_i) );
@@ -26,20 +28,22 @@ module IF_TB();
     initial begin
         clk = 1'b 0;
         rstn = 1'b 1;
+        stall_IF_o = 1'b 0;
         @(posedge clk) rstn = 1'b 0;
         repeat (2) @(posedge clk);
         rstn = 1'b 1;
         target_addr_o = 64'd 0;
         is_ctrl_flow_o = 1'b 0;
         is_compressed_instr_o = 1'b 0;
-    end
-    
-    initial begin
-        repeat (10) @(posedge clk);
+        
         for (int i = 0; i < 20; i++) begin
+            stall_IF_o = 1'b 1;
             @(posedge clk)
             target_addr_o = {$urandom(), $urandom()};
-            {is_ctrl_flow_o, is_compressed_instr_o} = $urandom();
+            //{is_ctrl_flow_o, is_compressed_instr_o} = $urandom();
+            @(posedge clk);
+            stall_IF_o = 1'b 0;
+            @(posedge clk);
         end
         @(posedge clk)
         target_addr_o = 64'd 0;
