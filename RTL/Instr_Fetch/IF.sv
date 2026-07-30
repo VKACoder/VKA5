@@ -4,6 +4,7 @@ module IF
 )
 (
     clk, rstn,
+    stall_IF_i,
     is_ctrl_flow_i, is_compressed_instr_i,
     target_addr_i,
     current_pc_o
@@ -12,6 +13,7 @@ module IF
 
     //Inputs
     input clk, rstn;
+    input stall_IF_i;
     input is_ctrl_flow_i, is_compressed_instr_i;
     input [63:0] target_addr_i;
     
@@ -26,7 +28,9 @@ module IF
             next_pc = boot_addr;
         end
         else begin
-            if (is_compressed_instr_i)
+            if (stall_IF_i)
+                next_pc = current_pc_o;
+            else if (is_compressed_instr_i)
                 next_pc = current_pc_o + 64'h 2;
             else
                 next_pc = current_pc_o + 64'h 4; 
