@@ -1,4 +1,5 @@
-module RegFile_32x64(
+module RegFile_32x64
+(
     clk,
     rstn,
     reg_addr1, reg_addr2,
