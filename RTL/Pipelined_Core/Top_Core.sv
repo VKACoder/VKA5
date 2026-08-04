@@ -1,5 +1,3 @@
-import RV64_pkg::*;
-
 module Top_Core
 (
     clk, rstn,
@@ -7,6 +5,8 @@ module Top_Core
     instr_fetched_valid_i,
     pc
 );
+
+    import RV64_pkg::*;
     
     //Inputs
     input clk, rstn;
@@ -34,6 +34,8 @@ module Top_Core
     reg [31:0] IF_instr;
      
     //ID/EX Stage
+    operation ID_op;
+    reg [63:0] ID_rdata1, ID_rdata2, ID_imm_value;
     
     //Pipeline stage instantiations
     //IF STage
@@ -72,6 +74,21 @@ module Top_Core
         else begin
             IF_current_pc <= pc;
             IF_instr <= instr_fetched_valid_i == 1'b 1 ? instr_fetched_i : 32'h 00000013;
+        end
+    end
+    
+    always_ff @ (posedge clk) begin : ID_EX_Registers
+        if (rstn == 1'b 0) begin
+            ID_op <= '0;
+            ID_rdata1 <= 64'd 0;
+            ID_rdata2 <= 64'd 0;
+            ID_imm_value <= 64'd 0;
+        end
+        else begin
+            ID_op <= op; 
+            ID_rdata1 <= Rdata1;
+            ID_rdata2 <= Rdata2;
+            ID_imm_value <= Imm_value;       
         end
     end
     
