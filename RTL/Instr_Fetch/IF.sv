@@ -42,7 +42,7 @@ module IF
             current_pc_o <= boot_addr;
         end
         else begin
-            if (is_ctrl_flow_i) begin
+            if (is_ctrl_flow_i && ~stall_IF_i) begin
                 current_pc_o <= target_addr_i;
             end
             else begin

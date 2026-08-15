@@ -9,14 +9,12 @@ module ID_TB();
     //Inputs to ID
     reg clk, rstn;
     reg [31:0] instr_fetched_o;
-    reg [63:0] curr_pc_o;
     
     //Outputs from ID
     wire is_compressed_instr_i, is_valid_instr_i;
     wire rd_en1, rd_en2, imm_valid;
-    wire [4:0] reg_addr1, reg_addr2;
+    wire [4:0] reg_addr1, reg_addr2, rd_addr;
     wire [63:0] imm_value_i;
-    wire [63:0] curr_pc_i;
     operation op_i;
 
     //Reg declarations
@@ -26,12 +24,10 @@ module ID_TB();
     ID DUT(
         .clk(clk), .rstn(rstn),
         .instr_fetched_i(instr_fetched_o),
-        .current_pc_i(curr_pc_o),
         .is_compressed_instr_o(is_compressed_instr_i), .is_valid_instr_o(is_valid_instr_i),
         .rd_en1(rd_en1), .rd_en2(rd_en2), .imm_valid(imm_valid),
-        .reg_addr1(reg_addr1), .reg_addr2(reg_addr2),
+        .reg_addr1(reg_addr1), .reg_addr2(reg_addr2), .rd_addr(rd_addr),
         .imm_value_o(imm_value_i),
-        .current_pc_o(curr_pc_i),
         .op_o(op_i) );
     
     always #5 clk = ~clk;
@@ -40,7 +36,6 @@ module ID_TB();
         clk = 1'b 0;
         rstn = 1'b 1;
         wait_rstn = 1'b 0;
-        curr_pc_o = 64'd 0;
         instr_fetched_o = 32'd 0;
         @ (posedge clk) rstn = 1'b 0;
         repeat (2) @ (posedge clk)
@@ -54,10 +49,10 @@ module ID_TB();
         // U-Type
         //============================================================
         
-        @ (posedge clk) curr_pc_o = 64'h 0000;
+        @ (posedge clk)
         instr_fetched_o = 32'h 100002B7; // lui     x5, 0x10000              (U)  is_lui
         
-        @ (posedge clk) curr_pc_o = 64'h 0004;
+        @ (posedge clk)
         instr_fetched_o = 32'h 00001317; // auipc   x6, 0x1                  (U)  is_auipc
         
         
@@ -65,7 +60,7 @@ module ID_TB();
         // J-Type
         //============================================================
         
-        @ (posedge clk) curr_pc_o = 64'h 0008;
+        @ (posedge clk)
         instr_fetched_o = 32'h 010000EF; // jal     x1, 16                  (J)  is_jal
         
         
@@ -73,43 +68,43 @@ module ID_TB();
         // I-Type Arithmetic
         //============================================================
         
-        @ (posedge clk) curr_pc_o = 64'h 000C;
+        @ (posedge clk)
         instr_fetched_o = 32'h 00A08113; // addi    x2, x1, 10              is_addi
         
-        @ (posedge clk) curr_pc_o = 64'h 0010;
+        @ (posedge clk)
         instr_fetched_o = 32'h FFF0A193; // slti    x3, x1, -1              is_slti
         
-        @ (posedge clk) curr_pc_o = 64'h 0014;
+        @ (posedge clk)
         instr_fetched_o = 32'h 0010B213; // sltiu   x4, x1, 1               is_sltiu
         
-        @ (posedge clk) curr_pc_o = 64'h 0018;
+        @ (posedge clk)
         instr_fetched_o = 32'h 0FF0C293; // xori    x5, x1, 255             is_xori
         
-        @ (posedge clk) curr_pc_o = 64'h 001C;
+        @ (posedge clk)
         instr_fetched_o = 32'h 00F0E313; // ori     x6, x1, 15              is_ori
         
-        @ (posedge clk) curr_pc_o = 64'h 0020;
+        @ (posedge clk)
         instr_fetched_o = 32'h 0F00F393; // andi    x7, x1, 240             is_andi
         
-        @ (posedge clk) curr_pc_o = 64'h 0024;
+        @ (posedge clk)
         instr_fetched_o = 32'h 00309413; // slli    x8,  x1, 3              is_slli
         
-        @ (posedge clk) curr_pc_o = 64'h 0028;
+        @ (posedge clk)
         instr_fetched_o = 32'h 0030D493; // srli    x9,  x1, 3              is_srli
         
-        @ (posedge clk) curr_pc_o = 64'h 002C;
+        @ (posedge clk)
         instr_fetched_o = 32'h 4030D513; // srai    x10, x1, 3              is_srai
         
-        @ (posedge clk) curr_pc_o = 64'h 0030;
+        @ (posedge clk)
         instr_fetched_o = 32'h 0050859B; // addiw   x11, x1, 5              is_addiw
         
-        @ (posedge clk) curr_pc_o = 64'h 0034;
+        @ (posedge clk)
         instr_fetched_o = 32'h 0020961B; // slliw   x12, x1, 2              is_slliw
         
-        @ (posedge clk) curr_pc_o = 64'h 0038;
+        @ (posedge clk)
         instr_fetched_o = 32'h 0020D69B; // srliw   x13, x1, 2              is_srliw
         
-        @ (posedge clk) curr_pc_o = 64'h 003C;
+        @ (posedge clk)
         instr_fetched_o = 32'h 4020D71B; // sraiw   x14, x1, 2              is_sraiw
         
         
@@ -117,25 +112,25 @@ module ID_TB();
         // Loads
         //============================================================
         
-        @ (posedge clk) curr_pc_o = 64'h 0040;
+        @ (posedge clk)
         instr_fetched_o = 32'h 00008283; // lb      x5,0(x1)                is_lb
         
-        @ (posedge clk) curr_pc_o = 64'h 0044;
+        @ (posedge clk)
         instr_fetched_o = 32'h 00209303; // lh      x6,2(x1)                is_lh
         
-        @ (posedge clk) curr_pc_o = 64'h 0048;
+        @ (posedge clk)
         instr_fetched_o = 32'h 0040A383; // lw      x7,4(x1)                is_lw
         
-        @ (posedge clk) curr_pc_o = 64'h 004C;
+        @ (posedge clk)
         instr_fetched_o = 32'h 0000C403; // lbu     x8,0(x1)                is_lbu
         
-        @ (posedge clk) curr_pc_o = 64'h 0050;
+        @ (posedge clk)
         instr_fetched_o = 32'h 0020D483; // lhu     x9,2(x1)                is_lhu
         
-        @ (posedge clk) curr_pc_o = 64'h 0054;
+        @ (posedge clk)
         instr_fetched_o = 32'h 0040E503; // lwu     x10,4(x1)               is_lwu
         
-        @ (posedge clk) curr_pc_o = 64'h 0058;
+        @ (posedge clk)
         instr_fetched_o = 32'h 0080B583; // ld      x11,8(x1)               is_ld
         
         
@@ -143,16 +138,16 @@ module ID_TB();
         // Stores
         //============================================================
         
-        @ (posedge clk) curr_pc_o = 64'h 005C;
+        @ (posedge clk)
         instr_fetched_o = 32'h 00508023; // sb      x5, 0(x1)               is_sb
         
-        @ (posedge clk) curr_pc_o = 64'h 0060;
+        @ (posedge clk)
         instr_fetched_o = 32'h 00609123; // sh      x6, 2(x1)               is_sh
         
-        @ (posedge clk) curr_pc_o = 64'h 0064;
+        @ (posedge clk)
         instr_fetched_o = 32'h 0070A223; // sw      x7, 4(x1)               is_sw
         
-        @ (posedge clk) curr_pc_o = 64'h 0068;
+        @ (posedge clk)
         instr_fetched_o = 32'h 0080B423; // sd      x8, 8(x1)               is_sd
         
         
@@ -160,22 +155,22 @@ module ID_TB();
         // Branches
         //============================================================
         
-        @ (posedge clk) curr_pc_o = 64'h 006C;
+        @ (posedge clk)
         instr_fetched_o = 32'h 00208863; // beq     x1, x2, 16              is_beq
         
-        @ (posedge clk) curr_pc_o = 64'h 0070;
+        @ (posedge clk)
         instr_fetched_o = 32'h 00209863; // bne     x1, x2, 16              is_bne
         
-        @ (posedge clk) curr_pc_o = 64'h 0074;
+        @ (posedge clk)
         instr_fetched_o = 32'h 0020C863; // blt     x1, x2, 16              is_blt
         
-        @ (posedge clk) curr_pc_o = 64'h 0078;
+        @ (posedge clk)
         instr_fetched_o = 32'h 0020D863; // bge     x1, x2, 16              is_bge
         
-        @ (posedge clk) curr_pc_o = 64'h 007C;
+        @ (posedge clk)
         instr_fetched_o = 32'h 0020E863; // bltu    x1, x2, 16              is_bltu
         
-        @ (posedge clk) curr_pc_o = 64'h 0080;
+        @ (posedge clk)
         instr_fetched_o = 32'h 0020F863; // bgeu    x1, x2, 16              is_bgeu
         
         
@@ -183,34 +178,34 @@ module ID_TB();
         // R-Type
         //============================================================
         
-        @ (posedge clk) curr_pc_o = 64'h 0084;
+        @ (posedge clk)
         instr_fetched_o = 32'h 002081B3; // add     x3,x1,x2                is_add
         
-        @ (posedge clk) curr_pc_o = 64'h 0088;
+        @ (posedge clk)
         instr_fetched_o = 32'h 40208233; // sub     x4,x1,x2                is_sub
         
-        @ (posedge clk) curr_pc_o = 64'h 008C;
+        @ (posedge clk)
         instr_fetched_o = 32'h 002092B3; // sll     x5,x1,x2                is_sll
         
-        @ (posedge clk) curr_pc_o = 64'h 0090;
+        @ (posedge clk)
         instr_fetched_o = 32'h 0020A333; // slt     x6,x1,x2                is_slt
         
-        @ (posedge clk) curr_pc_o = 64'h 0094;
+        @ (posedge clk)
         instr_fetched_o = 32'h 0020B3B3; // sltu    x7,x1,x2                is_sltu
         
-        @ (posedge clk) curr_pc_o = 64'h 0098;
+        @ (posedge clk)
         instr_fetched_o = 32'h 0020C433; // xor     x8,x1,x2                is_xor
         
-        @ (posedge clk) curr_pc_o = 64'h 009C;
+        @ (posedge clk)
         instr_fetched_o = 32'h 0020D4B3; // srl     x9,x1,x2                is_srl
         
-        @ (posedge clk) curr_pc_o = 64'h 00A0;
+        @ (posedge clk)
         instr_fetched_o = 32'h 4020D533; // sra     x10,x1,x2               is_sra
         
-        @ (posedge clk) curr_pc_o = 64'h 00A4;
+        @ (posedge clk)
         instr_fetched_o = 32'h 0020E5B3; // or      x11,x1,x2               is_or
         
-        @ (posedge clk) curr_pc_o = 64'h 00A8;
+        @ (posedge clk)
         instr_fetched_o = 32'h 0020F633; // and     x12,x1,x2               is_and
         
         
@@ -218,19 +213,19 @@ module ID_TB();
         // RV64 R-Type (OP-32)
         //============================================================
         
-        @ (posedge clk) curr_pc_o = 64'h 00AC;
+        @ (posedge clk)
         instr_fetched_o = 32'h 002086BB; // addw    x13, x1, x2             is_addw
         
-        @ (posedge clk) curr_pc_o = 64'h 00B0;
+        @ (posedge clk)
         instr_fetched_o = 32'h 4020873B; // subw    x14, x1, x2             is_subw
         
-        @ (posedge clk) curr_pc_o = 64'h 00B4;
+        @ (posedge clk)
         instr_fetched_o = 32'h 002097BB; // sllw    x15, x1, x2             is_sllw
         
-        @ (posedge clk) curr_pc_o = 64'h 00B8;
+        @ (posedge clk)
         instr_fetched_o = 32'h 0020D83B; // srlw    x16, x1, x2             is_srlw
         
-        @ (posedge clk) curr_pc_o = 64'h 00BC;
+        @ (posedge clk)
         instr_fetched_o = 32'h 4020D8BB; // sraw    x17, x1, x2             is_sraw
         
         
@@ -238,7 +233,7 @@ module ID_TB();
         // I-Type Jump
         //============================================================
         
-        @ (posedge clk) curr_pc_o = 64'h 00C0;
+        @ (posedge clk)
         instr_fetched_o = 32'h 00C100E7; // jalr    x1, x2, 12              is_jalr
         
         repeat (5) @(posedge clk);

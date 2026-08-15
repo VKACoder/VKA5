@@ -40,10 +40,14 @@ module IF_TB();
             stall_IF_o = 1'b 1;
             @(posedge clk)
             target_addr_o = {$urandom(), $urandom()};
-            //{is_ctrl_flow_o, is_compressed_instr_o} = $urandom();
+            @(negedge clk)
+            is_ctrl_flow_o = $urandom();
+            if (is_ctrl_flow_o == 1'b 0)
+                is_compressed_instr_o = $urandom();
             @(posedge clk);
             stall_IF_o = 1'b 0;
             @(posedge clk);
+            {is_ctrl_flow_o, is_compressed_instr_o} = $urandom();
         end
         @(posedge clk)
         target_addr_o = 64'd 0;

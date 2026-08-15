@@ -15,6 +15,7 @@ module TopTB_RV64I();
     
     //reg declarations
     reg clk_m;
+    reg [63:0] clk_count;
     
     //wire declarations
     
@@ -33,7 +34,7 @@ module TopTB_RV64I();
         .instr_valid_o(instr_fetched_valid) );
         
     always #5 clk = ~clk;
-    always #7 clk_m = ~clk_m;
+    always #5 clk_m = ~clk_m;
     
     initial begin
         clk = 1'b 0;
@@ -41,6 +42,17 @@ module TopTB_RV64I();
         rstn = 1'b 0;
         repeat (2) @(posedge clk);
         rstn = 1'b 1;
+        repeat(425) @(posedge clk);
+        $finish();
+    end
+    
+    always @ (posedge clk) begin
+        if (rstn == 1'b 0) begin
+            clk_count <= 64'd 0;  
+        end
+        else begin
+           clk_count <= clk_count + 1'b 1; 
+        end
     end
 
 endmodule

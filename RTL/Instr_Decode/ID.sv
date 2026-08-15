@@ -2,13 +2,11 @@ module ID
 (
     clk, rstn,
     instr_fetched_i,
-    current_pc_i,
     is_compressed_instr_o, /* CHECK */
     is_valid_instr_o, /* CHECK */
     rd_en1, rd_en2, imm_valid,
-    reg_addr1, reg_addr2,
+    reg_addr1, reg_addr2, rd_addr,
     imm_value_o,
-    current_pc_o,
     op_o
 );
 
@@ -17,14 +15,12 @@ module ID
     //Inputs
     input clk, rstn;
     input [31:0] instr_fetched_i;
-    input [63:0] current_pc_i;
     
     //Outputs
     output is_compressed_instr_o, is_valid_instr_o; /* CHECK */
     output rd_en1, rd_en2, imm_valid;
-    output [4:0] reg_addr1, reg_addr2;
+    output [4:0] reg_addr1, reg_addr2, rd_addr;
     output reg [63:0] imm_value_o;
-    output [63:0] current_pc_o;
     output operation op_o;
     
     //Reg declarations
@@ -40,7 +36,6 @@ module ID
     wire is_valid_uncompressed_operation; /* CHECK */
          
     //** ID LOGIC **//
-    assign current_pc_o = current_pc_i;
     
     //Uncompressed instructions decoding
     assign is_R_type = ((instr_fetched_i[6:0] == 7'b 0110011) || (instr_fetched_i[6:0] == 7'b 0111011));
@@ -137,6 +132,7 @@ module ID
     
     assign reg_addr1 = instr_fetched_i[19:15];
     assign reg_addr2 = instr_fetched_i[24:20];
+    assign rd_addr   = instr_fetched_i[11:7];
     
     //Operation decoding
     //R-type
