@@ -34,7 +34,7 @@ module TopTB_RV64I();
         .instr_valid_o(instr_fetched_valid) );
         
     always #5 clk = ~clk;
-    always #5 clk_m = ~clk_m;
+    always #7 clk_m = ~clk_m;
     
     initial begin
         clk = 1'b 0;

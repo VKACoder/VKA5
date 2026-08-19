@@ -31,6 +31,7 @@ module Top_Core
     wire [63:0] Alu_result;
     wire [6:0]  Is_load;
     wire [3:0]  Is_store;
+    wire stall_IF;
     
     //Pipeline registers
     //IF/ID Stage
@@ -47,7 +48,7 @@ module Top_Core
     //IF STage
     IF IF_Stage(
         .clk(clk), .rstn(rstn),
-        .stall_IF_i(~instr_fetched_valid_i),
+        .stall_IF_i(~stall_IF),
         .is_ctrl_flow_i(Ctrl_flow), .is_compressed_instr_i(is_compressed_instr),
         .target_addr_i(Target_addr),
         .current_pc_o(pc) );
@@ -78,7 +79,12 @@ module Top_Core
         .clk(clk), .rstn(rstn),
         .reg_addr1(Reg_addr1), .reg_addr2(Reg_addr2),
         .wr_en(1'b 0), .rd_en1(Rd_en1), .rd_en2(Rd_en2),
-        .wdata(64'd 0), .rdata1(Rdata1), .rdata2(Rdata2) );    
+        .wdata(64'd 0), .rdata1(Rdata1), .rdata2(Rdata2) );
+        
+    synchronizer IF_stall_signal(
+        .clk(clk), .rstn(rstn),
+        .din(instr_fetched_valid_i),
+        .dout(stall_IF) );    
     
     //Pipeline Register Updation
     always_ff @ (posedge clk) begin : IF_ID_Registers

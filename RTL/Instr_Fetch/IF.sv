@@ -8,7 +8,6 @@ module IF
     is_ctrl_flow_i, is_compressed_instr_i,
     target_addr_i,
     current_pc_o
-    
 );
 
     //Inputs
@@ -18,7 +17,7 @@ module IF
     input [63:0] target_addr_i;
     
     //Outputs
-    output reg [63:0] current_pc_o;
+    output reg [63:0] current_pc_o;;
     
     //Reg declaration
     reg [63:0] next_pc;
