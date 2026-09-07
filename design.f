@@ -1,6 +1,8 @@
 --sv
 --timing
---trace-fst
+--trace
+
+--top-module TopTB_RV64I
 
 -Wno-lint
 -Wno-WIDTHCONCAT

@@ -53,4 +53,9 @@ module TopTB_RV64I();
         end
     end
 
+    initial begin
+	$dumpfile("dump.vcd");
+	$dumpvars(0, TopTB_RV64I);
+    end
+
 endmodule
