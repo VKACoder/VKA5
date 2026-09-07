@@ -1,5 +1,3 @@
-`timescale 1ns / 1ps
-
 module TopTB_RV64I();
 
     //import uvm_pkg::*;
