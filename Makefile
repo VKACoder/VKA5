@@ -11,4 +11,4 @@ run:
 	./obj_dir/VTopTB_RV64I
 
 wave:
-	gtkwave dump.vcd
+	gtkwave dump.vcd &
