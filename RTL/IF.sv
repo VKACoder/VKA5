@@ -3,7 +3,7 @@ module IF
 	parameter boot_addr = 64'd 0
 )
 (
-	input             clk, rstn,
+	input             IF_clk, IF_rstn,
 	input             is_ctrl_true_i,
 	input      [63:0] branch_addr_i,
 	input      [31:0] fetched_instr_i,
@@ -29,8 +29,8 @@ reg [63:0] next_pc;
 assign instr_ready = current_pc_state == PC_INSTR_FETCH;
 assign pc_valid    = current_pc_state == PC_VALID;
 
-always_ff @ (posedge clk) begin
-	if (rstn == 1'b 0) begin
+always_ff @ (posedge IF_clk) begin
+	if (IF_rstn == 1'b 0) begin
 		current_pc_o     <= boot_addr;
 		current_pc_state <= PC_RST;
 		reg_instr        <= 32'h 0;
