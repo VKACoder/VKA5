@@ -23,8 +23,8 @@ IF IF_DUT
 	.is_ctrl_true_i(is_ctrl_true_o),
 	.branch_addr_i(branch_addr_o),
 	.fetched_instr_i(fetched_instr_o),
-	.instr_valid(instr_valid),
-	.instr_ready(instr_ready),
+	.instr_valid_IF(instr_valid),
+	.instr_ready_IF(instr_ready),
 	.current_pc_o(current_pc_i),
 	.pc_valid(pc_valid),
 	.pc_ready(pc_ready)
